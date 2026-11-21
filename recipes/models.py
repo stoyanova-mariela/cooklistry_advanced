@@ -2,7 +2,7 @@ from django.core.validators import MaxLengthValidator, MinValueValidator
 from django.db import models
 
 from ingredients.models import Ingredient
-
+from django.conf import settings
 
 class Category(models.Model):
     class Meta:
@@ -28,6 +28,7 @@ class Recipe(models.Model):
         MEDIUM = 'medium', 'Medium'
         HARD = 'hard', 'Hard'
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recipes', null=True, blank=True,)
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, validators=[MaxLengthValidator(300)])
     instructions = models.TextField(validators=[MaxLengthValidator(1000)])

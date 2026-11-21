@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, TemplateView, DetailView
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from recipes.forms import CategoryForm, RecipeForm, RecipeIngredientFormSet
 from recipes.models import Category, Recipe
 from django.db import transaction
@@ -47,7 +47,8 @@ class CategoryDeleteView(DeleteView):
             return HttpResponseRedirect(self.success_url)
 
 
-class RecipeCreateView(CreateView):
+
+class RecipeCreateView(LoginRequiredMixin, CreateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'recipes/recipe_form.html'
@@ -57,25 +58,27 @@ class RecipeCreateView(CreateView):
 
         if 'ingredient_formset' not in context:
             context['ingredient_formset'] = RecipeIngredientFormSet(instance=self.object)
-
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = None
-
         form = self.get_form()
         ingredient_formset = RecipeIngredientFormSet(request.POST, instance=self.object)
 
         if form.is_valid() and ingredient_formset.is_valid():
             with transaction.atomic():
-                recipe = form.save()
-
+                recipe = form.save(commit=False)
+                recipe.owner = request.user
+                recipe.save()
                 ingredient_formset.instance = recipe
                 ingredient_formset.save()
-
             return redirect('recipes:recipe_detail', pk=recipe.pk)
-
-        return self.render_to_response(self.get_context_data(form=form, ingredient_formset=ingredient_formset))
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                ingredient_formset=ingredient_formset
+            )
+        )
 
 
 class RecipeDetailView(DetailView):
@@ -84,7 +87,7 @@ class RecipeDetailView(DetailView):
     context_object_name = 'recipe'
 
     def get_queryset(self):
-        return Recipe.objects.select_related('category').prefetch_related('recipe_ingredients__ingredient')
+        return Recipe.objects.select_related('category', 'owner').prefetch_related('recipe_ingredients__ingredient')
 
 
 class RecipeListView(ListView):
@@ -117,10 +120,14 @@ class RecipeListView(ListView):
         return context
 
 
-class RecipeUpdateView(UpdateView):
+class RecipeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'recipes/recipe_form.html'
+
+    def test_func(self):
+        recipe = self.get_object()
+        return recipe.owner == self.request.user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -143,7 +150,11 @@ class RecipeUpdateView(UpdateView):
         return self.render_to_response(self.get_context_data(form=form,ingredient_formset=ingredient_formset))
 
 
-class RecipeDeleteView(DeleteView):
+class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Recipe
     template_name = 'recipes/recipe_confirm_delete.html'
     success_url = reverse_lazy('recipes:recipe_list')
+
+    def test_func(self):
+        recipe = self.get_object()
+        return recipe.owner == self.request.user
