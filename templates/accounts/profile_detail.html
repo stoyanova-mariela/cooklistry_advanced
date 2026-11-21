@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold">My Profile</h2>
+
+                        <div class="text-center mb-4">
+                            {% if profile.profile_picture %}
+                                <img src="{{ profile.profile_picture.url }}"
+                                     alt="Profile Picture"
+                                     class="rounded-circle shadow-sm"
+                                     style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-light border
+                                            d-flex align-items-center justify-content-center
+                                            mx-auto"
+                                     style="width: 150px; height: 150px;">
+                                    <span class="fs-1 text-secondary">👤</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <p class="text-muted">
+                            Your personal Cooklistry account
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Username:</strong>
+                        <p>{{ profile.user.username }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Email:</strong>
+                        <p>{{ profile.user.email|default:"Not provided" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>First Name:</strong>
+                        <p>{{ profile.user.first_name|default:"Not provided" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Last Name:</strong>
+                        <p>{{ profile.user.last_name|default:"Not provided" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>About Me:</strong>
+                        <p>{{ profile.bio|default:"Not provided" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Favourite Cuisine:</strong>
+                        <p>{{ profile.favourite_cuisine|default:"Not provided" }}</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{% url 'accounts:profile_edit' %}"
+                           class="btn btn-success">
+                            Edit Profile
+                        </a>
+
+                        <a href="{% url 'accounts:profile_delete' %}"
+                           class="btn btn-outline-danger">
+                            Delete Account
+                        </a>
+
+                        <a href="{% url 'recipes:home' %}"
+                           class="btn btn-outline-secondary">
+                            Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
