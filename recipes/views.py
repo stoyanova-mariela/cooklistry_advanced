@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, TemplateView, DetailView
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 from recipes.forms import CategoryForm, RecipeForm, RecipeIngredientFormSet
 from recipes.models import Category, Recipe
 from django.db import transaction
@@ -14,11 +14,17 @@ class HomeView(TemplateView):
     template_name = 'recipes/home.html'
 
 
-class CategoryCreateView(CreateView):
+class CategoryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Category
     form_class = CategoryForm
     template_name = 'recipes/category_form.html'
     success_url = reverse_lazy('recipes:category_list')
+
+    def test_func(self):
+        return (
+            self.request.user.is_superuser
+            or self.request.user.groups.filter(name='Recipe Editors').exists()
+        )
 
 
 class CategoryListView(ListView):
@@ -27,17 +33,29 @@ class CategoryListView(ListView):
     context_object_name = 'categories'
 
 
-class CategoryUpdateView(UpdateView):
+class CategoryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = 'recipes/category_form.html'
     success_url = reverse_lazy('recipes:category_list')
 
+    def test_func(self):
+        return (
+            self.request.user.is_superuser
+            or self.request.user.groups.filter(name='Recipe Editors').exists()
+        )
 
-class CategoryDeleteView(DeleteView):
+
+class CategoryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Category
     template_name = 'recipes/category_confirm_delete.html'
     success_url = reverse_lazy('recipes:category_list')
+
+    def test_func(self):
+        return (
+            self.request.user.is_superuser
+            or self.request.user.groups.filter(name='Recipe Editors').exists()
+        )
 
     def form_valid(self, form):
         try:
