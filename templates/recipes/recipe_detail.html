@@ -81,6 +81,94 @@
 
             </div>
         </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-body p-4">
+
+                <h3 class="mb-3">Reviews</h3>
+
+                {% if review_count %}
+                    <div class="mb-4">
+                        <h4 class="text-warning">
+                            ★ {{ average_rating|floatformat:1 }}/5
+                        </h4>
+
+                        <p class="text-muted">
+                            {{ review_count }} review{{ review_count|pluralize }}
+                        </p>
+                    </div>
+                {% else %}
+                    <p class="text-muted">
+                        This recipe has not been rated yet.
+                    </p>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    {% if not has_reviewed %}
+                        <a href="{% url 'reviews:review_add' recipe.pk %}"
+                           class="btn btn-success mb-4">
+                            Add Review
+                        </a>
+                    {% else %}
+                        <p class="text-muted">
+                            You have already reviewed this recipe.
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">
+                        Log in to leave a review.
+                    </p>
+                {% endif %}
+
+                {% for review in reviews %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ review.author.username }}</strong>
+
+                                <small class="text-muted">
+                                    {{ review.created_at|date:"d M Y" }}
+                                </small>
+                            </div>
+
+                            <div class="text-warning fs-5 my-2">
+                                {% for star in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        ★
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <p>{{ review.comment|linebreaksbr }}</p>
+
+                            {% if user.is_authenticated and review.author == user %}
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'reviews:review_edit' review.pk %}"
+                                       class="btn btn-sm btn-warning">
+                                        Edit
+                                    </a>
+
+                                    <a href="{% url 'reviews:review_delete' review.pk %}"
+                                       class="btn btn-sm btn-danger">
+                                        Delete
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">
+                        Be the first to review this recipe!
+                    </p>
+                {% endfor %}
+
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

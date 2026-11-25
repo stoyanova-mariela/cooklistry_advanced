@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Delete Review | Cooklistry
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Delete Review</h2>
+
+    <div class="alert alert-warning">
+        Are you sure you want to delete your review for
+        <strong>{{ object.recipe.title }}</strong>?
+
+        <p class="mb-0 mt-2">
+            This action cannot be undone.
+        </p>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>Rating: {{ object.rating }}/5</h5>
+            <p>{{ object.comment }}</p>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-danger">
+            Delete Review
+        </button>
+
+        <a href="{% url 'recipes:recipe_detail' object.recipe.pk %}"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

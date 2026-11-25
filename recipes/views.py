@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, TemplateView, DetailView
@@ -105,7 +106,20 @@ class RecipeDetailView(DetailView):
     context_object_name = 'recipe'
 
     def get_queryset(self):
-        return Recipe.objects.select_related('category', 'owner').prefetch_related('recipe_ingredients__ingredient')
+        return Recipe.objects.select_related('category', 'owner').prefetch_related('recipe_ingredients__ingredient', 'reviews__author')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reviews = self.object.reviews.all()
+
+        context['reviews'] = reviews
+        context['average_rating'] = reviews.aggregate(average=Avg('rating'))['average']
+        context['review_count'] = reviews.count()
+        context['has_reviewed'] = (self.request.user.is_authenticated and any(
+            review.author_id == self.request.user.pk for review in reviews
+        ))
+
+        return context
 
 
 class RecipeListView(ListView):

@@ -19,7 +19,6 @@ class RegistrationView(CreateView):
     def form_valid(self, form):
         with transaction.atomic():
             self.object = form.save()
-            Profile.objects.create(user=self.object)
         return HttpResponseRedirect(self.get_success_url())
 
 
