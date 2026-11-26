@@ -7,7 +7,7 @@ from accounts.models import Profile
 
 @receiver(post_migrate)
 def create_user_groups(sender, **kwargs):
-    if sender.label != "accounts":
+    if sender.label != "recipes":
         return
 
     regular_users, _ = Group.objects.get_or_create(name="Regular Users")
@@ -20,7 +20,7 @@ def create_user_groups(sender, **kwargs):
             "add_recipe",
         ],
     )
-    regular_users.permissions.add(*regular_permissions)
+    regular_users.permissions.set(regular_permissions)
 
     recipe_permissions = Permission.objects.filter(
         content_type__app_label="recipes",
@@ -31,7 +31,7 @@ def create_user_groups(sender, **kwargs):
             "view_recipe",
         ],
     )
-    recipe_editors.permissions.add(*recipe_permissions)
+    recipe_editors.permissions.set(recipe_permissions)
 
 
 @receiver(post_save, sender=get_user_model())

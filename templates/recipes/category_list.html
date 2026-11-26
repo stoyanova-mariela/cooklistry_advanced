@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load account_tags %}
 
 {% block title %}Categories | Cooklistry{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <h1 class="h2 mb-2">Recipe Categories</h1>
         <p class="text-muted mb-0">
@@ -11,9 +12,11 @@
         </p>
     </div>
 
-    <a href="{% url 'recipes:category_add' %}" class="btn btn-success">
-        + Add Category
-    </a>
+    {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+        <a href="{% url 'recipes:category_add' %}" class="btn btn-success">
+            + Add Category
+        </a>
+    {% endif %}
 </div>
 
 <div class="row g-4">
@@ -34,10 +37,12 @@
                             No description available.
                         </p>
                     {% endif %}
-                    <div class="d-flex gap-2 mt-3">
-                        <a href="{% url 'recipes:category_edit' category.pk %}" class="btn btn-outline-success btn-sm">Edit</a>
-                        <a href="{% url 'recipes:category_delete' category.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                    </div>
+                    {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{% url 'recipes:category_edit' category.pk %}" class="btn btn-outline-success btn-sm">Edit</a>
+                            <a href="{% url 'recipes:category_delete' category.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -46,14 +51,20 @@
             <div class="text-center bg-white rounded shadow-sm p-5">
                 <h2 class="h4 mb-3">No categories yet!</h2>
 
-                <p class="text-muted mb-4">
-                    Start organizing your recipes by creating your first category.
-                </p>
+                {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+                    <p class="text-muted mb-4">
+                        Start organizing your recipes by creating your first category.
+                    </p>
 
-                <a href="{% url 'recipes:category_add' %}"
-                   class="btn btn-success">
-                    Create First Category
-                </a>
+                    <a href="{% url 'recipes:category_add' %}"
+                       class="btn btn-success">
+                        Create First Category
+                    </a>
+                {% else %}
+                    <p class="text-muted mb-0">
+                        There are no categories available at the moment.
+                    </p>
+                {% endif %}
             </div>
         </div>
     {% endfor %}

@@ -26,6 +26,7 @@ urlpatterns = [
     path('meal-plans/', include('meal_plans.urls')),
     path('accounts/', include('accounts.urls')),
     path('reviews/', include('reviews.urls')),
+    path('api/recipes/', include('recipes.api_urls')),
 ]
 
 if settings.DEBUG:

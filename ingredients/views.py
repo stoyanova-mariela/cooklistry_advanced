@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -8,7 +9,12 @@ from ingredients.models import Ingredient
 from ingredients.forms import IngredientForm
 
 
-class IngredientCreateView(CreateView):
+class IngredientManagementMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return (self.request.user.is_superuser or self.request.user.groups.filter(name='Recipe Editors').exists())
+
+
+class IngredientCreateView(IngredientManagementMixin, CreateView):
     model = Ingredient
     form_class = IngredientForm
     template_name = 'ingredients/ingredient_form.html'
@@ -21,14 +27,14 @@ class IngredientListView(ListView):
     context_object_name = 'ingredients'
 
 
-class IngredientUpdateView(UpdateView):
+class IngredientUpdateView(IngredientManagementMixin, UpdateView):
     model = Ingredient
     form_class = IngredientForm
     template_name = 'ingredients/ingredient_form.html'
     success_url = reverse_lazy('ingredients:ingredient_list')
 
 
-class IngredientDeleteView(DeleteView):
+class IngredientDeleteView(IngredientManagementMixin, DeleteView):
     model = Ingredient
     template_name = 'ingredients/ingredient_confirm_delete.html'
     success_url = reverse_lazy('ingredients:ingredient_list')

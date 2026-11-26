@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load account_tags %}
 
 {% block title %}Ingredients | Cooklistry{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <h1 class="h2 mb-2">Recipe Ingredients</h1>
         <p class="text-muted mb-0">
@@ -11,7 +12,12 @@
         </p>
     </div>
 
-    <a href="{% url 'ingredients:ingredient_add' %}" class="btn btn-success">+ Add Ingredient</a>
+    {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+        <a href="{% url 'ingredients:ingredient_add' %}"
+           class="btn btn-success">
+            + Add Ingredient
+        </a>
+    {% endif %}
 </div>
 
 <div class="row g-4">
@@ -38,10 +44,12 @@
                         </span>
                     {% endif %}
 
-                    <div class="d-flex gap-2 mt-3">
-                        <a href="{% url 'ingredients:ingredient_edit' ingredient.pk %}" class="btn btn-outline-success btn-sm">Edit</a>
-                        <a href="{% url 'ingredients:ingredient_delete' ingredient.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                    </div>
+                    {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{% url 'ingredients:ingredient_edit' ingredient.pk %}" class="btn btn-outline-success btn-sm">Edit</a>
+                            <a href="{% url 'ingredients:ingredient_delete' ingredient.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -50,11 +58,13 @@
             <div class="text-center bg-white rounded shadow-sm p-5">
                 <h2 class="h4 mb-3">No ingredients yet!</h2>
 
-                <p class="text-muted mb-4">
-                    Start building your recipe collection by adding your first ingredient.
-                </p>
+                {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+                    <p class="text-muted mb-4">Start building your recipe collection by adding your first ingredient.</p>
 
-                <a href="{% url 'ingredients:ingredient_add' %}" class="btn btn-success">Create First Ingredient</a>
+                    <a href="{% url 'ingredients:ingredient_add' %}" class="btn btn-success">Create First Ingredient</a>
+                {% else %}
+                    <p class="text-muted mb-0">There are no ingredients available at the moment.</p>
+                {% endif %}
             </div>
         </div>
     {% endfor %}

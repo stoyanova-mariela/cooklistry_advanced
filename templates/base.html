@@ -1,3 +1,5 @@
+{% load account_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,101 +8,148 @@
     <title>{% block title %}Cooklistry{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+
+<body class="bg-light d-flex flex-column min-vh-100">
 
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'recipes:home' %}">🍳 Cooklistry</a>
 
-            <div class="navbar-nav">
-                <a class="nav-link text-white"
-                   href="{% url 'recipes:category_list' %}">
-                    Categories
-                </a>
+            <a class="navbar-brand fw-bold" href="{% url 'recipes:home' %}">
+                🍳 Cooklistry
+            </a>
 
-                <a class="nav-link text-white"
-                   href="{% url 'recipes:category_add' %}">
-                    Add Category
-                </a>
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-controls="navbarNav"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <a class="nav-link text-white"
-                   href="{% url 'ingredients:ingredient_list' %}">
-                    Ingredients
-                </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
 
-                <a class="nav-link text-white"
-                   href="{% url 'ingredients:ingredient_add' %}">
-                    Add Ingredient
-                </a>
-
-                <a class="nav-link text-white"
-                   href="{% url 'recipes:recipe_list' %}">
-                    All Recipes
-                </a>
-
-                <a class="nav-link text-white"
-                   href="{% url 'recipes:recipe_add' %}">
-                    Add Recipe
-                </a>
-
-                <a class="nav-link text-white"
-                   href="{% url 'meal_plans:meal_plan_list' %}">
-                    Meal Plans
-                </a>
-
-                <a class="nav-link text-white"
-                   href="{% url 'meal_plans:meal_plan_create' %}">
-                    Add Meal Plan
-                </a>
-
-                {% if not user.is_authenticated %}
-                    <a class="nav-link text-white"
-                       href="{% url 'accounts:register' %}">
-                        Register
-                    </a>
+                <div class="navbar-nav me-auto">
 
                     <a class="nav-link text-white"
-                       href="{% url 'accounts:login' %}">
-                        Login
+                       href="{% url 'recipes:category_list' %}">
+                        Categories
                     </a>
-                {% endif %}
 
-                {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'accounts:logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light">
-                            Logout
-                        </button>
-                    </form>
-                {% endif %}
+                    {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+                        <a class="nav-link text-white"
+                           href="{% url 'recipes:category_add' %}">
+                            Add Category
+                        </a>
+                    {% endif %}
 
-                {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile_detail' %}"
-                       class="nav-link">
-                        My Profile
+                    <a class="nav-link text-white"
+                       href="{% url 'ingredients:ingredient_list' %}">
+                        Ingredients
                     </a>
-                {% endif %}
+
+                    {% if user.is_superuser or user|has_group:"Recipe Editors" %}
+                        <a class="nav-link text-white"
+                           href="{% url 'ingredients:ingredient_add' %}">
+                            Add Ingredient
+                        </a>
+                    {% endif %}
+
+                    <a class="nav-link text-white"
+                       href="{% url 'recipes:recipe_list' %}">
+                        All Recipes
+                    </a>
+
+                    {% if user.is_authenticated %}
+
+                        <a class="nav-link text-white"
+                           href="{% url 'recipes:recipe_add' %}">
+                            Add Recipe
+                        </a>
+
+                        <a class="nav-link text-white"
+                           href="{% url 'meal_plans:meal_plan_list' %}">
+                            Meal Plans
+                        </a>
+
+                        <a class="nav-link text-white"
+                           href="{% url 'meal_plans:meal_plan_create' %}">
+                            Add Meal Plan
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="navbar-nav align-items-lg-center">
+
+                    {% if user.is_authenticated %}
+
+                        <a class="nav-link text-white"
+                           href="{% url 'accounts:profile_detail' %}">
+                            My Profile
+                        </a>
+
+                        <form method="post"
+                              action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="btn btn-outline-light">
+                                Logout
+                            </button>
+                        </form>
+
+                    {% else %}
+
+                        <a class="nav-link text-white"
+                           href="{% url 'accounts:register' %}">
+                            Register
+                        </a>
+
+                        <a class="nav-link text-white"
+                           href="{% url 'accounts:login' %}">
+                            Login
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
             </div>
         </div>
     </nav>
 </header>
 
-<main class="container py-5">
+<main class="container py-5 flex-grow-1">
+
     {% if messages %}
         {% for message in messages %}
-            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}" role="alert">
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}"
+                 role="alert">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
+
     {% block content %}
     {% endblock %}
+
 </main>
 
-<footer class="text-center text-muted py-4">
-    <small>Cooklistry — Your personal recipe organizer</small>
+<footer class="text-center text-muted py-4 mt-auto">
+    <small>
+        Cooklistry — Your personal recipe organizer
+        |
+        <a href="{% url 'recipes_api:recipe-list' %}"
+           class="text-success text-decoration-none">
+            Recipe API
+        </a>
+    </small>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

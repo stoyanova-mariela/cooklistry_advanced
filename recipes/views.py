@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, TemplateView, DetailView
 from django.db.models.deletion import ProtectedError
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from recipes.forms import CategoryForm, RecipeForm, RecipeIngredientFormSet
 from recipes.models import Category, Recipe
 from django.db import transaction
