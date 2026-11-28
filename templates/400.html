@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}400 - Bad Request | Cooklistry{% endblock %}
+
+{% block content %}
+    <div class="container text-center py-5">
+        <div class="py-5">
+            <h1 class="display-1 fw-bold text-success">400</h1>
+            <h2 class="mb-3">Oops! Bad request.</h2>
+
+            <p class="lead text-muted mb-4">
+                Looks like something went wrong with the ingredients
+                of your request. Please try again.
+            </p>
+
+            <a href="{% url 'recipes:home' %}" class="btn btn-success btn-lg">
+                Back to Home
+            </a>
+        </div>
+    </div>
+{% endblock %}

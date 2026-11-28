@@ -9,6 +9,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
 
 from accounts.forms import RegistrationForm, ProfileEditForm
 from accounts.models import Profile
+from accounts.tasks import send_welcome_email
 
 
 class RegistrationView(CreateView):
@@ -19,6 +20,13 @@ class RegistrationView(CreateView):
     def form_valid(self, form):
         with transaction.atomic():
             self.object = form.save()
+
+            if self.object.email:
+                send_welcome_email.delay_on_commit(
+                    self.object.email,
+                    self.object.username
+                )
+
         return HttpResponseRedirect(self.get_success_url())
 
 

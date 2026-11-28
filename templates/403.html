@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}403 - Forbidden | Cooklistry{% endblock %}
+
+{% block content %}
+    <div class="container text-center py-5">
+        <div class="py-5">
+            <h1 class="display-1 fw-bold text-success">403</h1>
+            <h2 class="mb-3">Oops! Access denied.</h2>
+
+            <p class="lead text-muted mb-4">
+                Looks like this part of the kitchen is off-limits.
+                You do not have permission to access this page.
+            </p>
+
+            <a href="{% url 'recipes:home' %}" class="btn btn-success btn-lg">
+                Back to Home
+            </a>
+        </div>
+    </div>
+{% endblock %}
